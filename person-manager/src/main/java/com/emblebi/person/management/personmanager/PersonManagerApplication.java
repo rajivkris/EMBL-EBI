@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @SpringBootApplication
 public class PersonManagerApplication {
@@ -23,7 +24,11 @@ public class PersonManagerApplication {
 	                  .anyRequest().authenticated()//all other urls can be access by any authenticated role
 	                  .and().formLogin()//enable form login instead of basic login
 	                  .and().csrf().ignoringAntMatchers("/index.html/**", "/api/**", "/h2-console/**")//don't apply CSRF protection to /h2-console
-	                  .and().headers().frameOptions().sameOrigin();//allow use of frame to same origin urls
+	                  .and().headers().frameOptions().sameOrigin()//allow use of frame to same origin urls
+		              .and()
+		              .logout()
+		              .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+		              .logoutSuccessUrl("/login");
 	          }
 	
 	          @Override
