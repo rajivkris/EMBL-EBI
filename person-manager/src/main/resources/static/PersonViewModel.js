@@ -10,11 +10,17 @@ var PersonModel = function(persons) {
       age: 0,
       favouriteColor: "",
       hobbies: ko.observableArray([]),
+      selfRef: "",
       hobbyToAdd: ko.observable(""),
-      selectedItems: ko.observableArray([])
+      selectedItems: ko.observableArray([]),
+      editMode: ko.observable(true)
 
     });
   };
+  
+  self.edit = function (person) {
+	  person.editMode(true);
+  }
 
   self.addHobby = function (person) {
         // Prevent blanks and duplicates
@@ -35,21 +41,62 @@ var PersonModel = function(persons) {
 
   self.removePerson = function(person) {
     self.persons.remove(person);
+    if (person.selfRef && person.selfRef !== "") {
+    	$.ajax({
+        	type: "DELETE",
+            url: person.selfRef
+        }).then(response => {
+        	console.log(response);
+        });
+    }
   };
 
   self.savePerson = function(person) {
-    var person = ko.observable({person : [mapToPersonEntityFormat(person)]});
-    alert("Could now transmit to server: " + ko.utils.stringifyJson(person));
-    $.ajax({
-    	type: "POST",
-        url: "http://localhost:8080/api/persons/person",
-        data: ko.utils.stringifyJson(person),
-        contentType: "application/json",
-        dataType: "json"
-    }).then(response => {
-    	console.log(response);
-    });
-    // To actually transmit to server as a regular form post, write this: ko.utils.postJson($("form")[0], self.gifts);
+    var personData = ko.observable({person : [mapToPersonEntityFormat(person)]});
+    if (person.selfRef && person.selfRef !== "") {
+    	$.ajax({
+        	type: "PUT",
+            url: person.selfRef,
+            data: ko.utils.stringifyJson(personData),
+            contentType: "application/json",
+            dataType: "json"
+        }).then(response => {
+        	person.editMode(false);
+        });
+    	
+    } else {
+    	$('#overlay').fadeIn();
+    	$.ajax({
+        	type: "POST",
+            url: "/api/persons/person",
+            data: ko.utils.stringifyJson(personData),
+            contentType: "application/json",
+            dataType: "json"
+        }).then(response => {
+        	var persons = [];
+        	   if (response.person && response.person.length > 0) {
+        		   var index = 0;
+        		   response.person.forEach(per => {
+        			   var persObj = {
+        							    firstName: per.first_name,
+        							    lastName: per.last_name,
+        							    age: per.age,
+        							    favouriteColor: per.favourite_colour,
+        							    hobbies: ko.observableArray(per.hobby),
+        							    selfRef: per.selfRef,
+        							    hobbyToAdd: ko.observable(""),
+        							    selectedItems: ko.observableArray([]),
+        							    editMode: ko.observable(false)
+        			   				}
+        			   persons[index] = persObj;
+        			   index++;
+        		   });
+        	   }
+        	   self.persons([]);
+        	   self.persons(persons);
+        	   $('#overlay').fadeOut();
+        });
+    }
   };
 };
 
@@ -63,8 +110,10 @@ var mapToPersonEntityFormat = (person) => {
 	};
 };
 
+$('#overlay').fadeIn();
+
 $.ajax({
-    url: "http://localhost:8080/api/persons"
+    url: "/api/persons"
 }).then(function(response) {
 	var persons = [];
    if (response.person && response.person.length > 0) {
@@ -76,8 +125,10 @@ $.ajax({
 						    age: per.age,
 						    favouriteColor: per.favourite_colour,
 						    hobbies: ko.observableArray(per.hobby),
+						    selfRef: per.selfRef,
 						    hobbyToAdd: ko.observable(""),
-						    selectedItems: ko.observableArray([])
+						    selectedItems: ko.observableArray([]),
+						    editMode: ko.observable(false)
 		   				}
 		   persons[index] = persObj;
 		   index++;
@@ -85,5 +136,6 @@ $.ajax({
    }
    var viewModel = new PersonModel(persons);
    ko.applyBindings(viewModel);
+   $('#overlay').fadeOut();
 });
 

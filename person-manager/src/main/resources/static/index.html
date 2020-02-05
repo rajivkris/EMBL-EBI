@@ -7,12 +7,18 @@
 	<title>Person Management Portal</title>
 </head>
 <body>
+  <div id="overlay" style="display:none;">
+     <div class="spinner"></div>
+     <br/>
+     Loading...
+  </div>
   <div class='liveExample'>
       <p><span data-bind='text: persons().length'>&nbsp;</span> Person(s) are available</p>
       <table data-bind='visible: persons().length > 0'>
         <thead>
         </thead>
         <tbody data-bind='foreach: persons'>
+        <br>
           <tr>
             <th>First name</th>
             <th>Last name</th>
@@ -22,36 +28,62 @@
             <th />
             <th />
           </tr>
-          <tr>
-            <td>
-              <input class='required' data-bind='value: firstName, uniqueName: true' />
-            </td>
-            <td>
-              <input class='required' data-bind='value: lastName, uniqueName: true' />
-            </td>
-            <td>
-              <input class='required number' data-bind='value: age, uniqueName: true' />
-            </td>
-            <td>
-              <input class='required' data-bind='value: favouriteColor, uniqueName: true' />
-            </td>
-            <td>
-                <input type="text" data-bind='value:hobbyToAdd, valueUpdate: "afterkeydown"' />
-                <button type="submit" data-bind="click: $root.addHobby, enable: hobbyToAdd().length > 0">Add</button>
-              <p>Your values:</p>
-              <select multiple="multiple" height="5" data-bind="options:hobbies, selectedOptions:selectedItems"> </select>
-              <div>
-                  <button data-bind="click: $root.removeSelected, enable: selectedItems().length > 0">Remove</button>
-                  <button data-bind="click: $root.sortItems, enable: hobbies().length > 1">Sort</button>
-              </div>
-            </td>
-            <td>
-              <a href='#' data-bind='click: $root.removePerson'>Delete</a>
-            </td>
-            <td>
-              <a href='#' data-bind='click: $root.savePerson'>Save</a>
-            </td>
-          </tr>
+          <!-- ko if: editMode -->
+	          <input type="hidden" data-bind='value: selfRef, uniqueName: true' />
+	          <tr>
+	            <td>
+	              <input class='required' data-bind='value: firstName, uniqueName: true' />
+	            </td>
+	            <td>
+	              <input class='required' data-bind='value: lastName, uniqueName: true' />
+	            </td>
+	            <td>
+	              <input class='required number' data-bind='value: age, uniqueName: true' />
+	            </td>
+	            <td>
+	              <input class='required' data-bind='value: favouriteColor, uniqueName: true' />
+	            </td>
+	            <td>
+	                <input type="text" data-bind='value:hobbyToAdd, valueUpdate: "afterkeydown"' />
+	                <button type="submit" data-bind="click: $root.addHobby, enable: hobbyToAdd().length > 0">Add</button>
+	              <p>Your values:</p>
+	              <select multiple="multiple" height="5" data-bind="options:hobbies, selectedOptions:selectedItems"> </select>
+	              <div>
+	                  <button data-bind="click: $root.removeSelected, enable: selectedItems().length > 0">Remove</button>
+	                  <button data-bind="click: $root.sortItems, enable: hobbies().length > 1">Sort</button>
+	              </div>
+	            </td>
+	            <td>
+	              <a href='#' data-bind='click: $root.removePerson'>Delete</a>
+	            </td>
+	            <td>
+	              <a href='#' data-bind='click: $root.savePerson'>Save</a>
+	            </td>
+	          </tr>
+          <!-- /ko -->
+          <!-- ko ifnot: editMode -->
+          	<input type="hidden" data-bind='value: selfRef, uniqueName: true' />
+	          <tr>
+	            <td>
+	              <span data-bind='text: firstName, uniqueName: true'></span>
+	            </td>
+	            <td>
+	              <span data-bind='text: lastName, uniqueName: true'></span>
+	            </td>
+	            <td>
+	              <span data-bind='text: age, uniqueName: true'></span>
+	            </td>
+	            <td>
+	              <span data-bind='text: favouriteColor, uniqueName: true'></span>
+	            </td>
+	            <td>
+	              <span data-bind='text: hobbies(), uniqueName: true'></span>
+	            </td>
+	            <td>
+	              <a href='#' data-bind='click: $root.edit'>Edit</a>
+	            </td>
+	          </tr>
+          <!-- /ko -->
         </tbody>
       </table>
       <button data-bind='click: addPerson'>Add A Person</button>

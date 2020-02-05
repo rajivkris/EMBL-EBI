@@ -15,6 +15,7 @@ public class PersonResource {
 	private int age;
 	private String favourite_colour;
 	private List<String> hobby;
+	private String selfRef;
 	
 	public int getId() {
 		return id;
@@ -72,6 +73,16 @@ public class PersonResource {
 	@JsonSetter
 	public void setHobby(List<String> hobby) {
 		this.hobby = hobby;
+	}
+
+	@JsonGetter
+	public String getSelfRef() {
+		return selfRef;
+	}
+
+	@JsonSetter
+	public void setSelfRef(String selfRef) {
+		this.selfRef = selfRef;
 	}
 	
 	

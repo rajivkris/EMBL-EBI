@@ -24,6 +24,7 @@ public class PersonHelper {
 			ps.setFavourite_colour(person.getFavourite_colour());
 			ps.setId(person.getId());
 			ps.setHobby(hobbies);
+			ps.setSelfRef("/api/persons/person/" + person.getId());
 			perResources.add(ps);
 		}
 		
